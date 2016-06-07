@@ -6,11 +6,11 @@ import re
 
 
 def main():
-	app = application(None)
-	app.mainloop()
+	auto_clicker = Application(None)
+	auto_clicker.mainloop()
 
 
-class application(Tk):
+class Application(Tk):
 	def __init__(self, parent):
 		Tk.__init__(self, parent)
 		self.parent = parent
@@ -56,6 +56,32 @@ class application(Tk):
 			"\nTo stop just move your mouse.\n")
 
 
+	def update_cps(self,  *dummy):
+		if self.valid_input():
+			self.click_delay = float(self.click_delay_txt_curr.get())
+			cps = 1.0 / self.click_delay
+			self.cps_text.set("Clicks per second: %.3f" % cps)
+	
+
+	def valid_input(self):
+		current_delay = self.click_delay_txt_curr.get()
+		prev_delay = self.click_delay_txt_prev.get()
+		regex_match = re.search(r'[^\d.]', self.click_delay_txt_curr.get())
+
+		if regex_match == None:
+			try:
+				test_float = float(self.click_delay_txt_curr.get())
+				self.click_delay_txt_prev.set(current_delay)
+				return True
+			except:
+				tkMessageBox.showwarning("Invalid", "Invalid decimal number, try again.")
+				self.click_delay_txt_curr.set(prev_delay)
+				return False
+		else:
+			self.click_delay_txt_curr.set(prev_delay)
+			return False
+	
+
 	def initialize_labels(self):
 		self.button = Button(self, text="Start Autoclicker", bg="blue", fg="white")
 		self.button.configure(activebackground="#8080ff", activeforeground="white")
@@ -71,50 +97,14 @@ class application(Tk):
 	
 
 	def bind_keys_and_widgets(self):
-		self.button.bind("<Button-1>", self.click_mouse)
-		self.bind("a", self.click_mouse)	
 		self.bind("c", self.set_cursor_position)
-	
-
-	def pack_to_window(self):
-		self.info_label.pack()
-		self.spinbox.pack()
-		self.cursor_pos_label.pack()
-		self.cps_label.pack()
-		self.start_clicker_label.pack()
-		self.button.pack()
-		self.resizable(False, False)
+		self.bind("a", self.click_mouse)	
+		self.button.bind("<Button-1>", self.click_mouse)
 
 
 	def set_cursor_position(self, event):
-		self.saved_x, self.saved_y = self.mouse .position() 
+		self.saved_x, self.saved_y = self.mouse.position() 
 		self.cursor_pos_text.set("\nSaved cursor position: %dx, %dy" % (self.saved_x, self.saved_y)) 
-	
-
-	def update_cps(self,  *dummy):
-		if self.valid_input():
-			self.click_delay = float(self.click_delay_txt_curr.get())
-			cps = 1.0 / self.click_delay
-			self.cps_text.set("Clicks per second: %.3f" % cps)
-
-
-	def valid_input(self):
-		current_delay = self.click_delay_txt_curr.get()
-		prev_delay = self.click_delay_txt_prev.get()
-		regex = re.search(r'[^\d.]', self.click_delay_txt_curr.get())
-
-		if regex == None:
-			try:
-				test_float = float(self.click_delay_txt_curr.get())
-				self.click_delay_txt_prev.set(current_delay)
-				return True
-			except:
-				tkMessageBox.showwarning("Invalid", "Invalid decimal number, try again.")
-				self.click_delay_txt_curr.set(prev_delay)
-				return False
-		else:
-			self.click_delay_txt_curr.set(prev_delay)
-			return False
 
 
 	def click_mouse(self, event):
@@ -134,7 +124,17 @@ class application(Tk):
 		    sleep(self.click_delay)
 		    current_x, current_y = self.mouse .position()
 
-		print "done, moved mouse"
+		print "finished, moved mouse"
+
+
+	def pack_to_window(self):
+		self.info_label.pack()
+		self.spinbox.pack()
+		self.cursor_pos_label.pack()
+		self.cps_label.pack()
+		self.start_clicker_label.pack()
+		self.button.pack()
+		self.resizable(False, False)
 
 
 if __name__ == '__main__':
